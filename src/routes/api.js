@@ -10,15 +10,15 @@ var settings = require('../settings/settings')
 db.connect()
 
 // Utility functions
-var build_response = function(status, message, result){
+var build_response = function (status, message, result) {
   return {
-    "status" : status,
-    "message" : message,
-    "result" : result
+    "status": status,
+    "message": message,
+    "result": result
   }
 }
 
-var respond = function(res, data){
+var respond = function (res, data) {
   console.log(data)
   res.setHeader('Content-Type', 'application/json')
   res.status(data.status)
@@ -32,9 +32,13 @@ router.get('/', function (req, res) {
 })
 
 router.get('/check/:short', function (req, res) {
-  db.check_short(req.params.short, function(err, url){
-    if (url){
-      var data = build_response(200, "Short exists", {"url": url.url, "short": url.short, "baseurl": settings.getBaseURL()})
+  db.check_short(req.params.short, function (err, url) {
+    if (url) {
+      var data = build_response(200, "Short exists", {
+        "url": url.url,
+        "short": url.short,
+        "baseurl": settings.baseUrl
+      })
     } else {
       var data = build_response(404, "Short not found", null)
     }
@@ -43,31 +47,44 @@ router.get('/check/:short', function (req, res) {
 })
 
 router.post('/create', function (req, res) {
-  console.log(req.body.url)
-  if (req.body.url === undefined){
+  console.log(req.body)
+  if (!req.body.url) {
     console.log("Missing url")
     var data = build_response(400, "Missing url", null)
-    respond(res, data)
-  } else {
-    console.log("Creating url")
-    db.create(req.body.url, req.body.short, function(err, creation){
-      console.log("DB request made")
-      if (creation) {
-        console.log("Success, short created!")
-        var data = build_response(201, "Success, short created!", {"url" : creation.url, "short" : creation.short, "baseurl": settings.getBaseURL()})
-      } else {
-        console.log("Failed to create")
-        var data = build_response(400, "Failed to create: " + err, null)
-        console.log(data)
-      }
-      respond(res, data)
-    })
+    return respond(res, data)
   }
+
+  try {
+    new URL(req.body.url);
+  } catch (e) {
+    return respond(res, build_response(400, "Invalid URL", null))
+  }
+
+  console.log("Creating url")
+  db.create(req.body, function (err, creation) {
+    console.log("DB request made")
+    if (creation) {
+      console.log("Success, short created!")
+      const data = build_response(201, "Success, short created!", {
+        url: creation._doc,
+        "baseurl": settings.baseUrl
+      })
+      return respond(res, data)
+    } else {
+      console.log("Failed to create")
+      const data = build_response(400, "Failed to create: " + err, null)
+      console.log(data)
+      return respond(res, data)
+    }
+  })
 })
 
 router.get('/genshort', function (req, res) {
   var short = db.generate_short()
-  var data = build_response(200, "Generated", {"short": short, "baseurl": settings.getBaseURL()})
+  var data = build_response(200, "Generated", {
+    "short": short,
+    "baseurl": settings.baseUrl
+  })
   respond(res, data)
 })
 

@@ -1,16 +1,15 @@
-# url-shortener
-A MEAN url shortener.
+# Google Analytics URL-shortener container [![Build Status](https://travis-ci.com/auxility/url-shortener.svg?branch=master)](https://travis-ci.com/auxility/url-shortener)
+
+[![Docker Hub](https://dockeri.co/image/auxility/url-shortener)](https://hub.docker.com/r/auxility/url-shortener)
 
 ## Running
 
 ### Docker
 
 ```Shell
-git clone https://github.com/met-office-lab/url-shortener.git
-cd url-shortener
-docker build -t url-shortener .
-docker run --name mongo mongo:3
-docker run -e DB_HOST=mongo -e DOMAIN=domain.tld --link mongo url-shortener
+docker pull auxility/url-shortener
+# assuming MongoDB is running on the host network
+docker run -d --name url-shortener -e PORT=80 -e GA_UA_ID=UA-12345678-1 -e DB_HOST=host.docker.internal -p 3001:80 auxility/url-shortener
 ```
 
 ### Classic
@@ -18,7 +17,6 @@ docker run -e DB_HOST=mongo -e DOMAIN=domain.tld --link mongo url-shortener
 This requires `mongo` and `node` (and optionally `nodemon`) to be installed already on your platform.
 
 ```Shell
-git clone https://github.com/met-office-lab/url-shortener.git
 cd url-shortener
 npm install
 node src/index.js # Or `nodemon src/index.js` for auto restarts on code changes
@@ -60,12 +58,21 @@ Creates a new shortened url.
 | --------- | ----------- |
 | `url`     | url to be shortened. |
 | `short`   | _(optional)_ short code to use. If not set one will be generated for you. |
+| `campaign` | _(optional)_ Campaign object, UTM params to be injected into outbound redirects and GA event |
+
+##### `Campaign` object
+| Parameter | Description |
+| --------- | ----------- |
+| `campaign`     |  |
+| `medium`     |  |
+| `source`     |  |
+| `content`     |  |
 
 #### Response `result`
 
 | Property | Description |
 | --------- | ----------- |
-| `url`     | the url which has been shortened. |
+| `url`     | The url object created. |
 | `short`   | the short code used. |
 | `baseurl`   | the base url of the server. |
 
@@ -122,14 +129,14 @@ To configure your server you can set some environment variables before starting 
 
 | Variable | Description | Default |
 | -------- | ----------- | ------- |
-| DOMAIN | The domain name your server is running on. | `localhost` |
 | PORT | The port to run your node express server on. | `3000` |
 | DB_HOST | The hostname of your mongodb server. | `mongo` |
 | DB_PORT | The port of your mongodb server. | `27017` |
 | DB_NAME | The database name to use. | `urlshort` |
 | SHORT_LENGTH | The length of a randomly generated short code | `7` |
 | ROOT_REDIRECT | The url to redirect to from  `http://domain.tld:port/`. | `/web/index.html` |
-
+| BASE_URL | External URL of your node server | `localhost` |
+| GA_UA_ID | Google Analytics Property Tracking ID |
 ## Contributing
 Pull requests are appreciated
 

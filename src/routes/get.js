@@ -14,17 +14,23 @@ router.get('/', function (req, res) {
 router.get('/unknown/:short', function (req, res) {
   message = "Error: Unknown short code '" + req.params.short + "'"
   res.status(404)
-  res.render('pages/404', {"message" : message})
+  res.render('pages/404', {"message": message})
   console.log(message)
 });
 
 router.get('/:short', function (req, res) {
-  db.get(req.params.short, function(url){
-    if (url){
-      console.log("code " + req.params.short + " -> " + url)
-      res.redirect(301, url.url)
+  db.get(req.params.short, function (url) {
+    if (url) {
+      console.log('lol ' + url)
+      return res.render('pages/redirect', {
+        url: url.url,
+        gtagConfig: {
+          campaign: url.campaign
+        },
+        propertyId: settings.gaPropertyId,
+      })
     } else {
-      res.redirect(301, "/unknown/" + req.params.short)
+      return res.redirect(301, "/unknown/" + req.params.short)
     }
   })
 });

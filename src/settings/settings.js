@@ -4,17 +4,8 @@ module.exports = {
   dbhost: process.env.DB_HOST || "localhost",
   dbport: process.env.DB_PORT || 27017,
   dbname: process.env.DB_NAME || "urlshort",
-  domain: process.env.DOMAIN || "localhost",
+  baseUrl: process.env.BASE_URL || "localhost:" + (process.env.PORT || 3000),
   shortlength: process.env.SHORT_LENGTH || 7,
-  rootredirect: process.env.ROOT_REDIRECT || "/web/index.html",
-
-  getBaseURL: function(){
-    if(this.port == 80){
-      return "http://" + this.domain
-    } else if (this.port == 443){
-      return "https://" + this.domain
-    } else {
-      return "http://" + this.domain + ":" + this.port
-    }
-  }
+  rootredirect: process.env.ROOT_REDIRECT || "/web/",
+  gaPropertyId: process.env.GA_UA_ID,
 }

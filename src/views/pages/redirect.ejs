@@ -1,0 +1,43 @@
+<!--suppress ALL -->
+<html>
+<head>
+    <title>Redirecting...</title>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async
+            src="https://www.googletagmanager.com/gtag/js?id=<%- propertyId %>"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+
+      gtag('js', new Date());
+      gtag('config', '<%- propertyId %>', <%- JSON.stringify(gtagConfig) %>);
+      gtag('event', 'Redirect', {
+        'event_label': '<%- url %>',
+      });
+    </script>
+
+    <%
+    var redirect = new URL(url);
+    redirect.searchParams.append('utm_campaign', gtagConfig.campaign.name);
+    redirect.searchParams.append('utm_source', gtagConfig.campaign.source);
+    redirect.searchParams.append('utm_medium', gtagConfig.campaign.medium);
+    redirect.searchParams.append('utm_content', gtagConfig.campaign.content);
+    %>
+</head>
+<body>
+<h1>Hold Tight!</h1>
+<p>You are being redirected to
+    <a href="<%- redirect %>">
+        <%- url %>
+    </a>
+</p>
+<script type="text/javascript">
+  window.onload = function (e) {
+    window.location.replace('<%- redirect %>');
+  }
+</script>
+</body>
+</html>

@@ -1,5 +1,9 @@
-FROM node:0.10-onbuild
+FROM node:13-alpine
 
-EXPOSE 3000
+WORKDIR /var/auxility/url-shortener
 
-CMD ["node", "src/index.js"]
+COPY . ./
+
+RUN npm install
+
+ENTRYPOINT node src/index.js
